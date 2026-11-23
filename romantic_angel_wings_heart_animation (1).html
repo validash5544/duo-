@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Duo Partner?</title>
+    <style>
+        /* Reset and Base Layout */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #2b0716 0%, #14020a 56%, #050002 100%);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Subtle Ambient Center Glow */
+        .ambient-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 72vmin;
+            height: 72vmin;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(255, 65, 115, 0.20) 0%, rgba(255, 175, 200, 0.08) 42%, transparent 72%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: ambientPulse 4.5s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes ambientPulse {
+            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.72; }
+            100% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
+        }
+
+        /* Magical Stars & Sparkling Dust Layer */
+        #stars-layer {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .tiny-star {
+            position: absolute;
+            border-radius: 50%;
+            background: #fff5f8;
+            box-shadow: 0 0 6px #ffffff, 0 0 12px rgba(255, 165, 195, 0.85);
+            animation: starTwinkle ease-in-out infinite alternate;
+        }
+
+        @keyframes starTwinkle {
+            0% { opacity: 0.15; transform: scale(0.75); }
+            100% { opacity: 0.95; transform: scale(1.25); }
+        }
+
+        /* Subtle Falling Rose Petals & Floating LOVE YOU Layer */
+        #petals-layer {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            pointer-events: none;
+            perspective: 900px;
+            z-index: 2;
+        }
+
+        /* Background Flowing "LOVE YOU" Texts */
+        .bg-love-you {
+            position: absolute;
+            top: -8%;
+            left: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            color: rgba(255, 145, 178, 0.85);
+            text-shadow: 0 0 10px rgba(255, 65, 120, 0.75), 0 0 22px rgba(220, 20, 60, 0.5);
+            white-space: nowrap;
+            pointer-events: none;
+            will-change: transform, opacity;
+            animation: loveYouFlow linear infinite;
+        }
+
+        @keyframes loveYouFlow {
+            0% {
+                transform: translate3d(0, -8vh, 0) rotate(var(--rot-start, -3deg));
+                opacity: 0;
+            }
+            10% {
+                opacity: var(--text-opacity, 0.65);
+            }
+            88% {
+                opacity: var(--text-opacity, 0.65);
+            }
+            100% {
+                transform: translate3d(var(--drift-x, 20px), 112vh, 0) rotate(var(--rot-end, 3deg));
+                opacity: 0;
+            }
+        }
+
+        .rose-petal-wrapper {
+            position: absolute;
+            top: -12%;
+            left: 0;
+            pointer-events: none;
+            will-change: transform, opacity;
+            animation: petalFall linear infinite;
+        }
+
+        .rose-petal-inner {
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            will-change: transform;
+            animation: petalSway3D ease-in-out infinite alternate;
+        }
+
+        .rose-petal-inner svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            overflow: visible;
+        }
+
+        @keyframes petalFall {
+            0% {
+                transform: translate3d(0, -10vh, 0);
+                opacity: 0;
+            }
+            10% {
+                opacity: var(--petal-opacity, 0.48);
+            }
+            82% {
+                opacity: var(--petal-opacity, 0.48);
+            }
+            100% {
+                transform: translate3d(var(--drift-x, 40px), 115vh, 0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes petalSway3D {
+            0% {
+                transform: translateX(calc(var(--sway-amp, 24px) * -1))
+                           rotateX(var(--rx-start, 15deg))
+                           rotateY(var(--ry-start, -25deg))
+                           rotateZ(var(--rz-start, -18deg));
+            }
+            50% {
+                transform: translateX(0px)
+                           rotateX(calc(var(--rx-end, 65deg) * 0.6))
+                           rotateY(var(--ry-mid, 35deg))
+                           rotateZ(calc((var(--rz-start, -18deg) + var(--rz-end, 32deg)) * 0.5));
+            }
+            100% {
+                transform: translateX(var(--sway-amp, 24px))
+                           rotateX(var(--rx-end, 65deg))
+                           rotateY(var(--ry-end, 50deg))
+                           rotateZ(var(--rz-end, 32deg));
+            }
+        }
+
+        /* Main Stage Container */
+        #stage {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+        }
+
+        /* Heart & Angel Wings Anchor Point (Dead Center, Completely Stationary) */
+        #heart-container {
+            position: relative;
+            width: 0;
+            height: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Soft, Elegant Breathing Glow on the Stationary Heart (Zero Scale/Position Movement) */
+        #heart-container.soft-glowing {
+            animation: stationaryHeartGlow 3.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes stationaryHeartGlow {
+            0% {
+                filter: drop-shadow(0 0 8px rgba(255, 75, 125, 0.35))
+                        drop-shadow(0 0 18px rgba(255, 30, 85, 0.22));
+            }
+            100% {
+                filter: drop-shadow(0 0 16px rgba(255, 130, 175, 0.78))
+                        drop-shadow(0 0 34px rgba(255, 55, 115, 0.52));
+            }
+        }
+
+        /* Separate Left & Right Angel Wings Physically Attached to Outer Edges of Heart */
+        .left-wing,
+        .right-wing {
+            position: absolute;
+            top: var(--wing-y-offset, -16px);
+            width: var(--wing-width, 280px);
+            height: var(--wing-height, 260px);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2;
+            filter: drop-shadow(0 0 12px rgba(255, 225, 238, 0.72))
+                    drop-shadow(0 0 26px rgba(255, 105, 155, 0.48));
+            transition:
+                transform 2.1s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 1.4s ease-out;
+            will-change: transform, opacity;
+        }
+
+        /* LEFT WING: Root at right edge (x=312 of 320 -> 97.5% width, y=155 of 300 -> 51.6% height)
+           Positioned to the left of center by --wing-attach-x so it physically touches the outer left edge of the heart */
+        .left-wing {
+            left: calc(var(--wing-attach-x, 160px) * -1 - var(--wing-width, 280px) * 0.975);
+            transform-origin: 97.5% 51.6%;
+            transform: translateY(-50%) scale(0.25) rotate(36deg);
+        }
+
+        .left-wing.open {
+            opacity: 1;
+            transform: translateY(-50%) scale(1) rotate(0deg);
+        }
+
+        .left-wing.open.steady-glow {
+            animation: wingSteadyGlow 4s ease-in-out infinite alternate;
+        }
+
+        /* RIGHT WING: Dedicated mirror SVG with root at left edge (x=8 of 320 -> 2.5% width, y=155 of 300 -> 51.6% height)
+           Positioned to the right of center by --wing-attach-x so it physically touches the outer right edge of the heart */
+        .right-wing {
+            left: calc(var(--wing-attach-x, 160px) - var(--wing-width, 280px) * 0.025);
+            transform-origin: 2.5% 51.6%;
+            transform: translateY(-50%) scale(0.25) rotate(-36deg);
+        }
+
+        .right-wing.open {
+            opacity: 1;
+            transform: translateY(-50%) scale(1) rotate(0deg);
+        }
+
+        .right-wing.open.steady-glow {
+            animation: wingSteadyGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes wingSteadyGlow {
+            0% {
+                filter: drop-shadow(0 0 12px rgba(255, 225, 238, 0.72))
+                        drop-shadow(0 0 24px rgba(255, 105, 155, 0.48));
+            }
+            100% {
+                filter: drop-shadow(0 0 18px rgba(255, 245, 250, 0.92))
+                        drop-shadow(0 0 36px rgba(255, 130, 175, 0.75));
+            }
+        }
+
+        .left-wing svg,
+        .right-wing svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            overflow: visible;
+        }
+
+        /* Individual 'LOVE' text elements forming the heart */
+        .love-word {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 5;
+            transition: 
+                transform 2.6s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 1.8s ease-out;
+            will-change: transform, opacity;
+        }
+
+        /* Color & Glow variations for depth */
+        .love-tone-1 {
+            color: #ff4d79;
+            text-shadow: 0 0 8px rgba(255, 77, 121, 0.85), 0 0 18px rgba(255, 20, 80, 0.55);
+        }
+        .love-tone-2 {
+            color: #ff85a2;
+            text-shadow: 0 0 8px rgba(255, 133, 162, 0.85), 0 0 16px rgba(255, 100, 140, 0.45);
+        }
+        .love-tone-3 {
+            color: #ffd1dc;
+            text-shadow: 0 0 10px rgba(255, 209, 220, 0.95), 0 0 22px rgba(255, 105, 135, 0.65);
+        }
+        .love-tone-4 {
+            color: #ff2a5f;
+            text-shadow: 0 0 10px rgba(255, 42, 95, 0.92), 0 0 24px rgba(220, 20, 60, 0.65);
+        }
+
+        /* Center Romantic Proposal Message: "Will you be my duo partner?" */
+        #center-message {
+            position: absolute;
+            font-family: 'Georgia', 'Palatino Linotype', 'Book Antiqua', serif;
+            font-style: italic;
+            font-weight: bold;
+            line-height: 1.32;
+            letter-spacing: 0.05em;
+            color: #fff5f8;
+            text-align: center;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 12;
+            opacity: 0;
+            transform: translateY(-6%) scale(0.75);
+            filter: blur(8px);
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.95),
+                0 0 24px rgba(255, 120, 165, 0.9),
+                0 0 42px rgba(255, 35, 90, 0.85);
+            transition: 
+                opacity 1.8s ease-out,
+                transform 2.0s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 1.8s ease-out;
+        }
+
+        #center-message.visible {
+            opacity: 1;
+            transform: translateY(-6%) scale(1);
+            filter: blur(0px);
+        }
+
+        #center-message.glow-pulse {
+            animation: textGlowPulse 3.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlowPulse {
+            0% {
+                text-shadow: 
+                    0 0 10px rgba(255, 255, 255, 0.92),
+                    0 0 22px rgba(255, 120, 165, 0.85),
+                    0 0 40px rgba(255, 35, 90, 0.8);
+            }
+            100% {
+                text-shadow: 
+                    0 0 16px rgba(255, 255, 255, 1),
+                    0 0 32px rgba(255, 155, 190, 1),
+                    0 0 54px rgba(255, 50, 105, 0.95);
+            }
+        }
+
+        /* Floating ambient background particles */
+        .sparkle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fff 0%, rgba(255, 145, 180, 0.5) 60%, transparent 100%);
+            pointer-events: none;
+            animation: floatUp linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.78;
+            }
+            80% {
+                opacity: 0.65;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.25);
+                opacity: 0;
+            }
+        }
+
+        /* Discreet Replay Button */
+        #replay-btn {
+            position: fixed;
+            bottom: 22px;
+            right: clamp(20px, 4vw, 44px);
+            background: rgba(255, 77, 121, 0.18);
+            border: 1px solid rgba(255, 165, 195, 0.45);
+            color: #ffe0e9;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s ease;
+            z-index: 20;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        #replay-btn.show {
+            opacity: 0.9;
+            pointer-events: auto;
+        }
+
+        #replay-btn:hover {
+            opacity: 1;
+            background: rgba(255, 77, 121, 0.38);
+            border-color: rgba(255, 210, 225, 0.85);
+            box-shadow: 0 0 18px rgba(255, 105, 150, 0.65);
+            transform: translateY(-2px);
+        }
+
+        #replay-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Bottom-right signature caption */
+        #ash-signature {
+            position: fixed;
+            bottom: 68px;
+            right: clamp(20px, 4vw, 44px);
+            font-family: 'Georgia', 'Palatino Linotype', 'Book Antiqua', serif;
+            font-style: italic;
+            font-size: clamp(13px, 1.7vw, 17px);
+            letter-spacing: 0.12em;
+            color: #ffe4ec;
+            text-shadow:
+                0 0 8px rgba(255, 130, 170, 0.85),
+                0 0 18px rgba(255, 45, 100, 0.6);
+            pointer-events: none;
+            z-index: 15;
+            opacity: 0;
+            transform: translateY(6px);
+            animation: signatureFadeIn 2.2s ease-out 0.8s forwards, captionGlow 4s ease-in-out 3.0s infinite alternate;
+        }
+
+        @keyframes signatureFadeIn {
+            to {
+                opacity: 0.92;
+                transform: translateY(0);
+            }
+        }
+
+        /* Top-left romantic caption */
+        #universe-caption {
+            position: fixed;
+            top: clamp(18px, 4vh, 36px);
+            left: clamp(20px, 4vw, 44px);
+            font-family: 'Georgia', 'Palatino Linotype', 'Book Antiqua', serif;
+            font-style: italic;
+            font-size: clamp(13px, 1.8vw, 18px);
+            letter-spacing: 0.14em;
+            color: #ffe4ec;
+            text-shadow:
+                0 0 8px rgba(255, 130, 170, 0.85),
+                0 0 18px rgba(255, 45, 100, 0.6);
+            pointer-events: none;
+            z-index: 15;
+            opacity: 0;
+            transform: translateY(-6px);
+            animation: captionFadeIn 2.2s ease-out 0.6s forwards, captionGlow 4s ease-in-out 2.8s infinite alternate;
+        }
+
+        @keyframes captionFadeIn {
+            to {
+                opacity: 0.92;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes captionGlow {
+            0% {
+                text-shadow:
+                    0 0 8px rgba(255, 130, 170, 0.8),
+                    0 0 18px rgba(255, 45, 100, 0.55);
+            }
+            100% {
+                text-shadow:
+                    0 0 12px rgba(255, 210, 225, 0.95),
+                    0 0 26px rgba(255, 75, 125, 0.85);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top-left romantic caption -->
+    <div id="universe-caption">A little universe for you</div>
+
+    <!-- Soft ambient background glow -->
+    <div class="ambient-glow"></div>
+
+    <!-- Twinkling Tiny Stars Background Layer -->
+    <div id="stars-layer" aria-hidden="true"></div>
+
+    <!-- Dreamy Falling Rose Petals & Floating LOVE YOU Layer -->
+    <div id="petals-layer" aria-hidden="true"></div>
+
+    <!-- Main Animation Stage -->
+    <div id="stage">
+        <div id="heart-container">
+            <!-- LEFT ANGEL WING: Attached to Outer Left Edge of Heart, Extending Outward Left -->
+            <div class="left-wing" id="left-wing" aria-hidden="true">
+                <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="leftWingOuter" x1="100%" y1="52%" x2="4%" y2="12%">
+                            <stop offset="0%" stop-color="#ff6b95" stop-opacity="0.96" />
+                            <stop offset="30%" stop-color="#ffb8ca" stop-opacity="0.97" />
+                            <stop offset="68%" stop-color="#ffe8ef" stop-opacity="0.99" />
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="1" />
+                        </linearGradient>
+                        <linearGradient id="leftWingMid" x1="100%" y1="55%" x2="12%" y2="25%">
+                            <stop offset="0%" stop-color="#e11d48" stop-opacity="0.90" />
+                            <stop offset="48%" stop-color="#ff8fab" stop-opacity="0.94" />
+                            <stop offset="100%" stop-color="#fff0f5" stop-opacity="0.98" />
+                        </linearGradient>
+                        <linearGradient id="leftWingInner" x1="100%" y1="55%" x2="22%" y2="40%">
+                            <stop offset="0%" stop-color="#be123c" stop-opacity="0.86" />
+                            <stop offset="55%" stop-color="#ff758f" stop-opacity="0.92" />
+                            <stop offset="100%" stop-color="#ffd9e3" stop-opacity="0.96" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Graceful Sweeping Outer Wing Arch & Rounded Primary Feathers (Root at x=312, y=155) -->
+                    <path d="M 312 155
+                             C 278 96, 212 34, 114 20
+                             C 68 13, 24 22, 16 38
+                             C 11 49, 28 60, 62 66
+                             C 30 68, 12 78, 14 91
+                             C 16 103, 38 110, 74 112
+                             C 42 117, 22 128, 26 141
+                             C 30 153, 55 158, 92 156
+                             C 60 164, 42 176, 48 189
+                             C 54 201, 80 203, 116 196
+                             C 86 207, 70 220, 78 232
+                             C 86 243, 112 241, 148 228
+                             C 124 241, 112 255, 122 265
+                             C 132 274, 160 267, 196 246
+                             C 238 221, 282 188, 312 155 Z"
+                          fill="url(#leftWingOuter)" />
+
+                    <!-- Layered Secondary Covert Feathers -->
+                    <path d="M 312 155
+                             C 274 106, 214 62, 134 56
+                             C 96 53, 66 62, 62 76
+                             C 59 86, 76 94, 108 98
+                             C 78 102, 58 112, 62 124
+                             C 66 135, 88 140, 122 138
+                             C 92 145, 76 156, 82 168
+                             C 88 179, 112 180, 146 174
+                             C 118 184, 104 196, 112 207
+                             C 120 217, 146 214, 180 202
+                             C 226 186, 276 172, 312 155 Z"
+                          fill="url(#leftWingMid)" />
+
+                    <!-- Inner Soft Shoulder Plumes -->
+                    <path d="M 312 155
+                             C 276 118, 226 92, 166 92
+                             C 136 92, 114 100, 114 112
+                             C 114 121, 130 127, 158 128
+                             C 132 133, 116 142, 120 153
+                             C 124 163, 146 166, 176 162
+                             C 152 170, 140 180, 148 190
+                             C 156 199, 182 196, 216 186
+                             C 254 175, 288 165, 312 155 Z"
+                          fill="url(#leftWingInner)" />
+
+                    <!-- Subtle Curved Feather Shafts -->
+                    <g stroke="rgba(255, 255, 255, 0.58)" stroke-width="1.3" fill="none" stroke-linecap="round">
+                        <path d="M 294 146 C 232 92, 138 44, 34 38" />
+                        <path d="M 290 151 C 224 112, 132 86, 30 89" />
+                        <path d="M 286 156 C 222 134, 134 126, 42 139" />
+                        <path d="M 282 161 C 224 156, 146 164, 64 186" />
+                        <path d="M 278 166 C 226 178, 164 198, 94 228" />
+                    </g>
+                </svg>
+            </div>
+
+            <!-- RIGHT ANGEL WING: Attached to Outer Right Edge of Heart, Extending Outward Right -->
+            <div class="right-wing" id="right-wing" aria-hidden="true">
+                <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="rightWingOuter" x1="0%" y1="52%" x2="96%" y2="12%">
+                            <stop offset="0%" stop-color="#ff6b95" stop-opacity="0.96" />
+                            <stop offset="30%" stop-color="#ffb8ca" stop-opacity="0.97" />
+                            <stop offset="68%" stop-color="#ffe8ef" stop-opacity="0.99" />
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="1" />
+                        </linearGradient>
+                        <linearGradient id="rightWingMid" x1="0%" y1="55%" x2="88%" y2="25%">
+                            <stop offset="0%" stop-color="#e11d48" stop-opacity="0.90" />
+                            <stop offset="48%" stop-color="#ff8fab" stop-opacity="0.94" />
+                            <stop offset="100%" stop-color="#fff0f5" stop-opacity="0.98" />
+                        </linearGradient>
+                        <linearGradient id="rightWingInner" x1="0%" y1="55%" x2="78%" y2="40%">
+                            <stop offset="0%" stop-color="#be123c" stop-opacity="0.86" />
+                            <stop offset="55%" stop-color="#ff758f" stop-opacity="0.92" />
+                            <stop offset="100%" stop-color="#ffd9e3" stop-opacity="0.96" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Graceful Sweeping Outer Wing Arch & Rounded Primary Feathers (Root at x=8, y=155) -->
+                    <path d="M 8 155
+                             C 42 96, 108 34, 206 20
+                             C 252 13, 296 22, 304 38
+                             C 309 49, 292 60, 258 66
+                             C 290 68, 308 78, 306 91
+                             C 304 103, 282 110, 246 112
+                             C 278 117, 298 128, 294 141
+                             C 290 153, 265 158, 228 156
+                             C 260 164, 278 176, 272 189
+                             C 266 201, 240 203, 204 196
+                             C 234 207, 250 220, 242 232
+                             C 234 243, 208 241, 172 228
+                             C 196 241, 208 255, 198 265
+                             C 188 274, 160 267, 124 246
+                             C 82 221, 38 188, 8 155 Z"
+                          fill="url(#rightWingOuter)" />
+
+                    <!-- Layered Secondary Covert Feathers -->
+                    <path d="M 8 155
+                             C 46 106, 106 62, 186 56
+                             C 224 53, 254 62, 258 76
+                             C 261 86, 244 94, 212 98
+                             C 242 102, 262 112, 258 124
+                             C 254 135, 232 140, 198 138
+                             C 228 145, 244 156, 238 168
+                             C 232 179, 208 180, 174 174
+                             C 202 184, 216 196, 208 207
+                             C 200 217, 174 214, 140 202
+                             C 94 186, 44 172, 8 155 Z"
+                          fill="url(#rightWingMid)" />
+
+                    <!-- Inner Soft Shoulder Plumes -->
+                    <path d="M 8 155
+                             C 44 118, 94 92, 154 92
+                             C 184 92, 206 100, 206 112
+                             C 206 121, 190 127, 162 128
+                             C 188 133, 204 142, 200 153
+                             C 196 163, 174 166, 144 162
+                             C 168 170, 180 180, 172 190
+                             C 164 199, 138 196, 104 186
+                             C 66 175, 32 165, 8 155 Z"
+                          fill="url(#rightWingInner)" />
+
+                    <!-- Subtle Curved Feather Shafts -->
+                    <g stroke="rgba(255, 255, 255, 0.58)" stroke-width="1.3" fill="none" stroke-linecap="round">
+                        <path d="M 26 146 C 88 92, 182 44, 286 38" />
+                        <path d="M 30 151 C 96 112, 188 86, 290 89" />
+                        <path d="M 34 156 C 98 134, 186 126, 278 139" />
+                        <path d="M 38 161 C 96 156, 174 164, 256 186" />
+                        <path d="M 42 166 C 94 178, 156 198, 226 228" />
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Centered Proposal Message -->
+            <div id="center-message">Will you be my<br>duo partner?</div>
+        </div>
+    </div>
+
+    <!-- Replay Button -->
+    <button id="replay-btn" aria-label="Replay Animation">↻ Replay</button>
+
+    <!-- Bottom-right signature -->
+    <div id="ash-signature">Your Valid Ash</div>
+
+    <script>
+        (function() {
+            const heartContainer = document.getElementById('heart-container');
+            const centerMessage = document.getElementById('center-message');
+            const leftWing = document.getElementById('left-wing');
+            const rightWing = document.getElementById('right-wing');
+            const replayBtn = document.getElementById('replay-btn');
+            const stage = document.getElementById('stage');
+            const petalsLayer = document.getElementById('petals-layer');
+            const starsLayer = document.getElementById('stars-layer');
+
+            // Configuration
+            const WORD_TEXT = 'LOVE';
+            let timeouts = [];
+
+            /**
+             * Creates twinkling tiny stars across the dark-red night sky
+             */
+            function createStars() {
+                starsLayer.innerHTML = '';
+                const isMobile = window.innerWidth < 600;
+                const starCount = isMobile ? 45 : 85;
+
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'tiny-star';
+                    const size = 1.2 + Math.random() * 2.4;
+                    star.style.width = `${size.toFixed(1)}px`;
+                    star.style.height = `${size.toFixed(1)}px`;
+                    star.style.left = `${(Math.random() * 100).toFixed(2)}vw`;
+                    star.style.top = `${(Math.random() * 100).toFixed(2)}vh`;
+                    star.style.animationDuration = `${(2.2 + Math.random() * 3.5).toFixed(2)}s`;
+                    star.style.animationDelay = `${(-Math.random() * 4).toFixed(2)}s`;
+                    starsLayer.appendChild(star);
+                }
+            }
+
+            /**
+             * Creates subtle, softly falling red and crimson rose petals and gentle "LOVE YOU" texts in the background
+             */
+            function createRosePetals() {
+                petalsLayer.innerHTML = '';
+
+                const petalPaths = [
+                    'M 50 6 C 74 4, 94 22, 92 48 C 90 72, 68 90, 50 96 C 32 90, 10 72, 8 48 C 6 22, 26 4, 50 6 Z',
+                    'M 48 5 C 76 6, 95 28, 88 55 C 82 78, 62 92, 46 95 C 28 91, 11 74, 12 46 C 13 21, 28 4, 48 5 Z',
+                    'M 50 8 C 80 3, 96 26, 91 52 C 86 76, 66 91, 50 95 C 34 91, 14 76, 9 52 C 4 26, 20 3, 50 8 Z'
+                ];
+
+                const palettes = [
+                    { top: '#e11d48', mid: '#9f1239', base: '#4c0519', vein: 'rgba(255, 180, 195, 0.14)' },
+                    { top: '#be123c', mid: '#881337', base: '#3f0414', vein: 'rgba(255, 160, 180, 0.12)' },
+                    { top: '#f43f5e', mid: '#be123c', base: '#58081e', vein: 'rgba(255, 205, 215, 0.15)' },
+                    { top: '#9f1239', mid: '#6b0b25', base: '#2c020d', vein: 'rgba(244, 114, 140, 0.10)' }
+                ];
+
+                const isMobile = window.innerWidth < 600;
+                const petalCount = isMobile ? 52 : 90;
+
+                for (let i = 0; i < petalCount; i++) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'rose-petal-wrapper';
+
+                    const inner = document.createElement('div');
+                    inner.className = 'rose-petal-inner';
+
+                    const isDistant = i % 2 === 0;
+                    const size = isDistant ? (12 + Math.random() * 6) : (17 + Math.random() * 8);
+                    const opacity = isDistant ? (0.45 + Math.random() * 0.2) : (0.62 + Math.random() * 0.25);
+                    const blurPx = isDistant ? (0.8 + Math.random() * 0.7) : (0.2 + Math.random() * 0.4);
+                    const fallDuration = isDistant ? (14 + Math.random() * 7) : (10 + Math.random() * 6);
+
+                    const startLeft = Math.random() * 100;
+                    const driftX = (Math.random() - 0.5) * 120;
+                    const swayAmp = 14 + Math.random() * 24;
+                    const swayDuration = 3.8 + Math.random() * 3.0;
+                    const negativeDelay = -Math.random() * fallDuration;
+
+                    wrapper.style.left = `${startLeft}vw`;
+                    wrapper.style.width = `${size}px`;
+                    wrapper.style.height = `${size * 1.15}px`;
+                    wrapper.style.filter = `blur(${blurPx.toFixed(2)}px)`;
+                    wrapper.style.setProperty('--petal-opacity', opacity.toFixed(2));
+                    wrapper.style.setProperty('--drift-x', `${driftX.toFixed(1)}px`);
+                    wrapper.style.animationDuration = `${fallDuration.toFixed(2)}s`;
+                    wrapper.style.animationDelay = `${negativeDelay.toFixed(2)}s`;
+
+                    const rxStart = (Math.random() - 0.5) * 50;
+                    const rxEnd = rxStart + (Math.random() > 0.5 ? 1 : -1) * (40 + Math.random() * 55);
+                    const ryStart = (Math.random() - 0.5) * 60;
+                    const ryMid = -ryStart * (0.6 + Math.random() * 0.5);
+                    const ryEnd = ryStart + (Math.random() > 0.5 ? 1 : -1) * (45 + Math.random() * 60);
+                    const rzStart = (Math.random() - 0.5) * 45;
+                    const rzEnd = rzStart + (Math.random() > 0.5 ? 1 : -1) * (30 + Math.random() * 45);
+
+                    inner.style.setProperty('--sway-amp', `${swayAmp.toFixed(1)}px`);
+                    inner.style.setProperty('--rx-start', `${rxStart.toFixed(1)}deg`);
+                    inner.style.setProperty('--rx-end', `${rxEnd.toFixed(1)}deg`);
+                    inner.style.setProperty('--ry-start', `${ryStart.toFixed(1)}deg`);
+                    inner.style.setProperty('--ry-mid', `${ryMid.toFixed(1)}deg`);
+                    inner.style.setProperty('--ry-end', `${ryEnd.toFixed(1)}deg`);
+                    inner.style.setProperty('--rz-start', `${rzStart.toFixed(1)}deg`);
+                    inner.style.setProperty('--rz-end', `${rzEnd.toFixed(1)}deg`);
+                    inner.style.animationDuration = `${swayDuration.toFixed(2)}s`;
+                    inner.style.animationDelay = `${(-Math.random() * swayDuration).toFixed(2)}s`;
+
+                    const palette = palettes[i % palettes.length];
+                    const pathData = petalPaths[i % petalPaths.length];
+                    const gradId = `petal-grad-${i}`;
+
+                    inner.innerHTML = `
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <radialGradient id="${gradId}" cx="45%" cy="28%" r="72%" fx="40%" fy="20%">
+                                    <stop offset="0%" stop-color="${palette.top}" />
+                                    <stop offset="58%" stop-color="${palette.mid}" />
+                                    <stop offset="100%" stop-color="${palette.base}" />
+                                </radialGradient>
+                            </defs>
+                            <path d="${pathData}" fill="url(#${gradId})" />
+                            <path d="M 50 14 Q 47 52 50 90" fill="none" stroke="${palette.vein}" stroke-width="1.6" stroke-linecap="round" />
+                        </svg>
+                    `;
+
+                    wrapper.appendChild(inner);
+                    petalsLayer.appendChild(wrapper);
+                }
+
+                // Floating "YES OR YES" text stream
+                const loveYouCount = isMobile ? 22 : 36;
+                for (let i = 0; i < loveYouCount; i++) {
+                    const textEl = document.createElement('div');
+                    textEl.className = 'bg-love-you';
+                    textEl.textContent = 'YES OR YES';
+
+                    const fontSize = isMobile ? (10 + Math.random() * 3.5) : (11.5 + Math.random() * 4.5);
+                    const opacity = 0.48 + Math.random() * 0.28;
+                    const blurPx = Math.random() * 0.5;
+                    const duration = 12 + Math.random() * 10;
+                    const leftPos = 2 + Math.random() * 92;
+                    const driftX = (Math.random() - 0.5) * 65;
+                    const rotStart = (Math.random() - 0.5) * 8;
+                    const rotEnd = rotStart + (Math.random() - 0.5) * 8;
+                    const negativeDelay = -Math.random() * duration;
+
+                    textEl.style.left = `${leftPos.toFixed(1)}vw`;
+                    textEl.style.fontSize = `${fontSize.toFixed(1)}px`;
+                    textEl.style.filter = blurPx > 0.1 ? `blur(${blurPx.toFixed(2)}px)` : 'none';
+                    textEl.style.setProperty('--text-opacity', opacity.toFixed(2));
+                    textEl.style.setProperty('--drift-x', `${driftX.toFixed(1)}px`);
+                    textEl.style.setProperty('--rot-start', `${rotStart.toFixed(1)}deg`);
+                    textEl.style.setProperty('--rot-end', `${rotEnd.toFixed(1)}deg`);
+                    textEl.style.animationDuration = `${duration.toFixed(2)}s`;
+                    textEl.style.animationDelay = `${negativeDelay.toFixed(2)}s`;
+
+                    petalsLayer.appendChild(textEl);
+                }
+            }
+
+            /**
+             * Creates subtle floating ambient light particles in the background
+             */
+            function createAmbientSparkles() {
+                document.querySelectorAll('.sparkle').forEach(s => s.remove());
+                const sparkleCount = window.innerWidth < 600 ? 22 : 36;
+                for (let i = 0; i < sparkleCount; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'sparkle';
+                    const size = 2 + Math.random() * 4.5;
+                    dot.style.width = `${size}px`;
+                    dot.style.height = `${size}px`;
+                    dot.style.left = `${Math.random() * 100}vw`;
+                    dot.style.animationDuration = `${8 + Math.random() * 12}s`;
+                    dot.style.animationDelay = `${-Math.random() * 15}s`;
+                    stage.appendChild(dot);
+                }
+            }
+
+            /**
+             * Clears all scheduled animation timers
+             */
+            function clearAllTimeouts() {
+                timeouts.forEach(id => clearTimeout(id));
+                timeouts = [];
+            }
+
+            /**
+             * Generates parametric heart curve coordinates
+             */
+            function getHeartPoints(count, scale) {
+                const points = [];
+                for (let i = 0; i < count; i++) {
+                    const t = (Math.PI * 2 * i) / count;
+                    const x = 16 * Math.pow(Math.sin(t), 3);
+                    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                    points.push({ x: x * scale, y: y * scale });
+                }
+                return points;
+            }
+
+            /**
+             * Builds and runs the stationary LOVE heart + outer angel wings + center message sequence
+             */
+            function startAnimation() {
+                clearAllTimeouts();
+
+                // Reset container, wings, and center message states
+                heartContainer.classList.remove('soft-glowing');
+                centerMessage.classList.remove('visible', 'glow-pulse');
+                leftWing.classList.remove('open', 'steady-glow');
+                rightWing.classList.remove('open', 'steady-glow');
+                replayBtn.classList.remove('show');
+
+                // Remove old LOVE elements
+                const oldWords = heartContainer.querySelectorAll('.love-word');
+                oldWords.forEach(w => w.remove());
+
+                // Responsive sizing calculations so heart, outer wings, and center text never overlap or clip
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                const minDim = Math.min(vw, vh);
+                const isMobile = vw < 600;
+
+                // Heart outer left/right curve is at x = ±16 * heartScale (at y ≈ -2.6 * heartScale).
+                // Each wing extends outward from ±15.6 * heartScale by ~17.5 * heartScale,
+                // so total half-span from center is ~33.1 * heartScale.
+                const maxHeartScaleByWidth = (vw * 0.475) / 33.2;
+                const maxHeartScaleByHeight = (vh * 0.42) / 17.5;
+                const heartScale = Math.max(6.0, Math.min(minDim * 0.023, maxHeartScaleByWidth, maxHeartScaleByHeight, 17.5));
+
+                const wordCount = isMobile ? 54 : 76;
+                const fontSize = Math.max(8.5, Math.min(heartScale * 0.72, 13));
+
+                // Physically attach the left and right wing roots right onto the outer left/right curves of the heart
+                const wingWidth = heartScale * 18.0;
+                const wingHeight = wingWidth * 0.9375; // 300 / 320 aspect ratio
+                const wingAttachX = heartScale * 15.6;
+                const wingYOffset = -heartScale * 2.2;
+
+                leftWing.style.setProperty('--wing-width', `${wingWidth.toFixed(1)}px`);
+                leftWing.style.setProperty('--wing-height', `${wingHeight.toFixed(1)}px`);
+                leftWing.style.setProperty('--wing-attach-x', `${wingAttachX.toFixed(1)}px`);
+                leftWing.style.setProperty('--wing-y-offset', `${wingYOffset.toFixed(1)}px`);
+
+                rightWing.style.setProperty('--wing-width', `${wingWidth.toFixed(1)}px`);
+                rightWing.style.setProperty('--wing-height', `${wingHeight.toFixed(1)}px`);
+                rightWing.style.setProperty('--wing-attach-x', `${wingAttachX.toFixed(1)}px`);
+                rightWing.style.setProperty('--wing-y-offset', `${wingYOffset.toFixed(1)}px`);
+
+                // Scale center message cleanly to sit comfortably inside the inner heart cavity
+                const msgSize = Math.max(13.5, Math.min(heartScale * 1.45, 27));
+                centerMessage.style.fontSize = `${msgSize.toFixed(1)}px`;
+
+                const points = getHeartPoints(wordCount, heartScale);
+                const wordElements = [];
+
+                // Create each floating 'LOVE' element at a scattered initial position
+                points.forEach((pt, idx) => {
+                    const span = document.createElement('span');
+                    span.textContent = WORD_TEXT;
+                    span.className = `love-word love-tone-${(idx % 4) + 1}`;
+                    span.style.fontSize = `${fontSize.toFixed(1)}px`;
+
+                    const scatterAngle = Math.random() * Math.PI * 2;
+                    const scatterDist = minDim * (0.48 + Math.random() * 0.48);
+                    const startX = Math.cos(scatterAngle) * scatterDist;
+                    const startY = Math.sin(scatterAngle) * scatterDist;
+                    const startRot = (Math.random() - 0.5) * 160;
+                    const startScale = 0.4 + Math.random() * 0.5;
+
+                    span.style.transform = `translate(-50%, -50%) translate(${startX.toFixed(1)}px, ${startY.toFixed(1)}px) rotate(${startRot.toFixed(1)}deg) scale(${startScale.toFixed(2)})`;
+                    span.style.opacity = '0';
+
+                    heartContainer.appendChild(span);
+                    wordElements.push({ el: span, target: pt, index: idx });
+                });
+
+                // Trigger reflow so initial transforms apply cleanly
+                void heartContainer.offsetWidth;
+
+                // Step 1: LOVE words fly in to form the stationary heart
+                const flyStartDelay = 500;
+                const staggerStep = 20;
+
+                wordElements.forEach(({ el, target, index }) => {
+                    const delay = flyStartDelay + index * staggerStep;
+                    const tid = setTimeout(() => {
+                        const subtleTilt = Math.sin(index * 0.6) * 10;
+                        el.style.opacity = '1';
+                        el.style.transform = `translate(-50%, -50%) translate(${target.x.toFixed(1)}px, ${target.y.toFixed(1)}px) rotate(${subtleTilt.toFixed(1)}deg) scale(1)`;
+                    }, delay);
+                    timeouts.push(tid);
+                });
+
+                const heartCompleteTime = flyStartDelay + wordCount * staggerStep + 1850;
+
+                // Step 2: Once the heart is complete, gracefully open both angel wings outward from the left and right outer edges
+                const openWingsId = setTimeout(() => {
+                    leftWing.classList.add('open');
+                    rightWing.classList.add('open');
+                }, heartCompleteTime);
+                timeouts.push(openWingsId);
+
+                // Step 3: Keep wings stably open with soft glow, reveal center message, and apply soft glow to the still heart
+                const revealMessageTime = heartCompleteTime + 1350;
+                const revealId = setTimeout(() => {
+                    centerMessage.classList.add('visible');
+                    leftWing.classList.add('steady-glow');
+                    rightWing.classList.add('steady-glow');
+                    heartContainer.classList.add('soft-glowing');
+                }, revealMessageTime);
+                timeouts.push(revealId);
+
+                // Step 4: Activate soft text shimmer & show Replay button
+                const finishId = setTimeout(() => {
+                    centerMessage.classList.add('glow-pulse');
+                    replayBtn.classList.add('show');
+                }, revealMessageTime + 1100);
+                timeouts.push(finishId);
+            }
+
+            // Handle window resize gracefully
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    createStars();
+                    createRosePetals();
+                    startAnimation();
+                }, 300);
+            });
+
+            // Replay button listener
+            replayBtn.addEventListener('click', startAnimation);
+
+            // Initialize background magic and start sequence on load
+            window.addEventListener('load', () => {
+                createStars();
+                createRosePetals();
+                createAmbientSparkles();
+                startAnimation();
+            });
+        })();
+    </script>
+</body>
+</html>
